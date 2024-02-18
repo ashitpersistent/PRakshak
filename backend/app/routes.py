@@ -1,5 +1,5 @@
-from app import app
-from flask import jsonify
+from app import app, get_data
+from flask import jsonify,abort
 from import_data import import_patient_data, import_doctor_data
 from firebase_utils import get_data, get_patient_appointments
 
@@ -31,7 +31,15 @@ def get_doctors_data():
 @app.route('/api/test', methods=['GET'])
 def get_dummy_data():
     db = get_data()
-    return db
+    doc_ref = db.collection(u'users').get()
+
+    user_data = []
+    for user in doc_ref:
+        user_data.append({
+            'id': user.id,
+            'data': user.to_dict()
+        })
+    return jsonify(user_data)
 
 @app.route('/api/patient/<string:patient_id>/appointments', methods=['GET'])
 def get_patient_appointments_route(patient_id):
